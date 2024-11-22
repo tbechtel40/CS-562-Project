@@ -21,9 +21,11 @@ def query():
     
     _global = []
     
+    # body variable in generator.py
     for row in cur:
         if row['quant'] > 10:
             _global.append(row)
+    # end of body
     
     
     return tabulate.tabulate(_global,
