@@ -1,4 +1,6 @@
 import subprocess
+import struct
+import pandas as pd
 
 
 def main():
@@ -13,14 +15,20 @@ def main():
     # NOTE: Don't forget to do other file check for 1.
 
     if(file_check == 2):
-        S = input("Select Attribute (S)")
-        n = input("Number of Grouping Variables (n)")
-        V = input("Grouping Attributes (V)")
-        F = input("F-Vect ([F])")
-        sigma = input("Select Condition-Vect ([sigma])")
-        G = input("Having Condition (G)")
+        S = input("Input Select Attribute (S)") # cust, 1_sum_quant, 2_sum_quant, 3_sum_quant
+        n = input("Input Number of Grouping Variables (n)") # 3
+        V = input("Input Grouping Attribute (V)") # cust
+        F = input("Input F-Vect ([F])") # 1_sum_quant, 1_avg_quant, 2_sum_quant, 3_sum_quant, 3_avg_quant
+        sigma = input("Input Select Condition-Vect ([sigma])") # 1.state=’NY’, 2.state=’NJ’, 3.state=’CT’ /// must be equal to n
+        G = input("Input Having Condition (G)") # 1_sum_quant > 2 * 2_sum_quant or 1_avg_quant > 3_avg_quant /// correspond to F, S
     else: # reading from file
         file_name = input("Please type in the file name")
+        # read from file
+
+    
+    # Process input and put into dictionary
+
+    # turn into arrays for most of them
 
     # Phi operator dictionary
     Phi = {
@@ -45,10 +53,43 @@ def main():
     printf (“ %s %s;\n”, F_VECT[2].type, F_VECT[2].agg);
     printf (“} mf_struct[500];\n”); """
 
+    mf_struct = []
+
+    # Algorithm
+
+        # emf = df[mf_struct["V"]].drop_duplicates()
+
+        # converting dataframe to dictionary
+        # emf = [{V: row[i] for i, V in enum(mf_struct["V"])} for row in emf.values]
+
+        # normal aggregates
+        # iterate through f: if aggregate not group by aggregate, store in normal aggregate dictionary and compute
+        # 0_avg_prod --> 0 = groub by it belongs to (0 = normal), avg = aggregate, prod = column
+        # use regex
+
+        # emf algorithm
+        # for sigma 
+            # for row in df.iterrows()
+                # for group by in emf
+                    # if eval(condition is true)
+                        # update aggregate functions for current group by variable in F
+
+    # Having
+
+        # identical to 5 BUT its only on the mf_struct
+        # same if eval, all that
+
+    # Select
+
+        # go through rows of table, make sure it's in select table
+
+    # 
+
+
     """
     for scan sc=0 to n {
         for each tuple t on scan {
-            for the entries of H with matching grouping attributes (for MF queries)
+           for all entries of H,
                 check if the defining condition of grouping var
                 Xsc is satisfied. If yes, update Xsc’s aggregates of the entry
                 appropriately.
@@ -56,6 +97,9 @@ def main():
                 where S denotes the grouping attributes.)
         }
     }
+
+    for row in cur:
+        #scan table
     """
     body = """
     
