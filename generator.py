@@ -29,9 +29,40 @@ def validatePhi(S,n,V,F,sigma,G):
     if not n.is_integer():
         raise ValueError("N must be a valid integer")
 
+    # check if n matches # of conditions in sigma 
     if int(n) != len(sigma.split(',')): 
         raise ValueError("Number of grouping variables (n) does not match the number of conditions in SELECT ([sigma]).")
 
+    # Check if S has valid input (no spaces within var names)
+    for (s in S):
+        s = s.strip() # trim input
+        for (sletter in s):
+            if sletter == ' ':
+                raise ValueError("S attribute variable name cannot contain spaces");
+
+    # do the same for V, F, and sigma
+    
+    # Check if V has valid input (no spaces within var names)
+    for (v in V):
+        v = v.strip() # trim input
+        for (vletter in v):
+            if vletter == ' ':
+                raise ValueError("V attribute variable name cannot contain spaces");
+     
+    # Check if F has valid input (no spaces within var names)
+    for (f in F):
+        f = f.strip() # trim input
+        for (fletter in f):
+            if fletter == ' ':
+                raise ValueError("F attribute variable name cannot contain spaces");
+
+    # Check if sigma has valid input (no spaces within var names)
+    for (sigmaAttr in sigma):
+        sigmaAttr = sigmaAttr.strip() # trim input
+        for (sigletter in sigmaAttr):
+            if sigletter == ' ':
+                raise ValueError("Sigma attribute variable name cannot contain spaces");
+    
     #NOTE: not complete.
     
 
