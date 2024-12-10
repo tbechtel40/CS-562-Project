@@ -2,6 +2,38 @@ import subprocess
 import struct
 import pandas as pd
 
+# Load .env variables, with error checking
+def loadEnvVariables():
+    load_dotenv() 
+    user = os.getenv('USER') 
+    password = os.getenv('PASSWORD') 
+    dbname = os.getenv('DBNAME') 
+    if not user or not password or not dbname: 
+        raise ValueError("Missing required environment variables.") 
+    return user, password, dbname
+
+# Validation for phi
+def validatePhi(S,n,V,F,sigma,G):
+    S = S.strip()
+    n = n.strip()
+    V = V.strip()
+    F = F.strip()
+    sigma = sigma.strip()
+    G = G.strip()
+
+    # All parameters must have a value
+    if not S or not n or not V or not F or not sigma or not G: 
+        raise ValueError("All Phi operator arguments must be provided.")
+    
+    # n must be an integer
+    if not n.is_integer():
+        raise ValueError("N must be a valid integer")
+
+    if int(n) != len(sigma.split(',')): 
+        raise ValueError("Number of grouping variables (n) does not match the number of conditions in SELECT ([sigma]).")
+
+    #NOTE: not complete.
+    
 
 def main():
     """
