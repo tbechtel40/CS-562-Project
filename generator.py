@@ -13,7 +13,7 @@ def loadEnvVariables():
     return user, password, dbname
 
 # Validate that the database connects properly for early failure detection
-def validate_database_connection(user, password, dbname): 
+def validateDatabaseConnection(user, password, dbname): 
     try: 
         conn = psycopg2.connect(f"dbname={dbname} user={user} password={password}") 
         conn.close() 
