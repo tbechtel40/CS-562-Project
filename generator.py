@@ -12,6 +12,22 @@ def loadEnvVariables():
         raise ValueError("Missing required environment variables.") 
     return user, password, dbname
 
+# Validate that the database connects properly for early failure detection
+def validate_database_connection(user, password, dbname): 
+    try: 
+        conn = psycopg2.connect(f"dbname={dbname} user={user} password={password}") 
+        conn.close() 
+        print("Database connection successful.") 
+    except Exception as e: 
+        raise ValueError(f"Database connection failed: {e}")
+
+def validSQLChar(c): 
+    return ( ('0' <= c <= '9') or # Digits 0-9 
+            ('A' <= c <= 'Z') or # Uppercase letters A-Z 
+            ('a' <= c <= 'z') or # Lowercase letters a-z 
+            c in " '()*," or # Whitespace, single quote, parentheses, asterisk, comma c in "=<>"
+            
+
 # Validation for phi
 def validatePhi(S,n,V,F,sigma,G):
     S = S.strip()
@@ -38,7 +54,10 @@ def validatePhi(S,n,V,F,sigma,G):
         s = s.strip() # trim input
         for (sletter in s):
             if sletter == ' ':
-                raise ValueError("S attribute variable name cannot contain spaces");
+                raise ValueError("S attribute variable name cannot contain spaces")
+            if not validSQLCharacter(sletter):
+                raise ValueError("S attribute variable name contains invalid SQL character")
+    
 
     # do the same for V, F, and sigma
     
@@ -47,24 +66,27 @@ def validatePhi(S,n,V,F,sigma,G):
         v = v.strip() # trim input
         for (vletter in v):
             if vletter == ' ':
-                raise ValueError("V attribute variable name cannot contain spaces");
+                raise ValueError("V attribute variable name cannot contain spaces")
+            if not validSQLCharacter(vletter):
+                raise ValueError("V attribute variable name contains invalid SQL character")
      
     # Check if F has valid input (no spaces within var names)
     for (f in F):
         f = f.strip() # trim input
         for (fletter in f):
             if fletter == ' ':
-                raise ValueError("F attribute variable name cannot contain spaces");
+                raise ValueError("F attribute variable name cannot contain spaces")
+            if not validSQLCharacter(fletter):
+                raise ValueError("F attribute variable name contains invalid SQL character")
 
     # Check if sigma has valid input (no spaces within var names)
     for (sigmaAttr in sigma):
         sigmaAttr = sigmaAttr.strip() # trim input
         for (sigletter in sigmaAttr):
             if sigletter == ' ':
-                raise ValueError("Sigma attribute variable name cannot contain spaces");
-    
-    #NOTE: not complete.
-    
+                raise ValueError("Sigma attribute variable name cannot contain spaces")
+            if not validSQLCharacter(sigletter):
+                raise ValueError("Sigma attribute variable name contains invalid SQL character")
 
 def main():
     """
@@ -90,7 +112,9 @@ def main():
 
     
     # Process input and put into dictionary
-
+    user, password, dbname = loadEnvVariables()
+    validateDatabaseConnection(user, password, dbname)
+    
     # turn into arrays for most of them
 
     # Phi operator dictionary
