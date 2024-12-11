@@ -1,5 +1,4 @@
 import subprocess
-import struct
 import pandas as pd
 
 
@@ -44,16 +43,11 @@ def main():
 
     schema = [("cust", "varchar(20)"), ("cust", "varchar(20)"), ("day", "integer"), ("month", "integer"), ("year", "integer"), ("state", "char(2)"), ("quant", "int"), ("date", "date")]
 
-    print("struct {\n")
 
-    """printf (“ %s %s[%d];\n”, V[0].type, V[0].attrib, V[0].size); # cust
-    printf (“ %s %s[%d];\n”, V[1].type, V[1].attrib, V[1].size); # prod (if for 2nd g.v.)
-    printf (“ %s %s;\n”, F_VECT[0].type, F_VECT[0].agg);
-    printf (“ %s %s;\n”, F_VECT[1].type, F_VECT[1].agg);
-    printf (“ %s %s;\n”, F_VECT[2].type, F_VECT[2].agg);
-    printf (“} mf_struct[500];\n”); """
 
-    mf_struct = []
+
+    mf_struct = pd.DataFrame({
+    })
 
     # Algorithm
 
