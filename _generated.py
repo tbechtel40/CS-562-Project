@@ -18,14 +18,11 @@ def query():
                             cursor_factory=psycopg2.extras.DictCursor)
     cur = conn.cursor()
     cur.execute("SELECT * FROM sales")
+    print(cur)
     
     _global = []
+    # 
     
-    # body variable in generator.py
-    for row in cur:
-        if row['quant'] > 10:
-            _global.append(row)
-    # end of body
     
     
     return tabulate.tabulate(_global,
