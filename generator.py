@@ -1,7 +1,4 @@
 import subprocess
-import pandas as pd
-import psycopg2
-import enum         
 
 def main():
     """
@@ -10,55 +7,55 @@ def main():
     file (e.g. _generated.py) and then run.
     """
 
-    # Asks user if they'd like to manually input Phi variables or read variables from a file
-    file_check = input("Press 1 if you'd like to read the arguments for the Phi operator from a file\nPress 2 if you'd like to input the arguments for the Phi operator")
+    """
+    for scan sc=0 to n {
+        for each tuple t on scan {
+           for all entries of H,
+                check if the defining condition of grouping var
+                Xsc is satisfied. If yes, update Xsc’s aggregates of the entry
+                appropriately.
+                X0 denotes the group (the defining condition of X0 is X0.S = S,
+                where S denotes the grouping attributes.)
+        }
+    }
 
-    if(file_check == 2): # manual input
-        S = input("Input Select Attribute (S)") # cust, 1_sum_quant, 2_sum_quant, 3_sum_quant
-        n = input("Input Number of Grouping Variables (n)") # 3
-        V = input("Input Grouping Attribute (V)") # cust
-        F = input("Input F-Vect ([F])") # 1_sum_quant, 1_avg_quant, 2_sum_quant, 3_sum_quant, 3_avg_quant
-        sigma = input("Input Select Condition-Vect ([sigma])") # 1.state=’NY’, 2.state=’NJ’, 3.state=’CT’ /// must be equal to n
-        G = input("Input Having Condition (G)") # 1_sum_quant > 2 * 2_sum_quant or 1_avg_quant > 3_avg_quant /// correspond to F, S
+    for row in cur:
+        #scan table
+    """
+
+    body = """
+    # Asks user if they'd like to manually input Phi variables or read variables from a file
+    file_check = input("Press 1 to read from a file, press 2 to input the arguments")
+
+    if(int(file_check) == 2): # manual input
+        S = input("Input Select Attribute (S): ") # cust, 1_sum_quant, 2_sum_quant, 3_sum_quant
+        n = input("Input Number of Grouping Variables (n): ") # 3
+        V = input("Input Grouping Attribute (V): ") # cust
+        F = input("Input F-Vect ([F]): ") # 1_sum_quant, 1_avg_quant, 2_sum_quant, 3_sum_quant, 3_avg_quant
+        sigma = input("Input Select Condition-Vect ([sigma]): ") # 1.state=’NY’, 2.state=’NJ’, 3.state=’CT’ /// must be equal to n
+        G = input("Input Having Condition (G): ") # 1_sum_quant > 2 * 2_sum_quant or 1_avg_quant > 3_avg_quant /// correspond to F, S
     else: # read from file
-        file_path = input("Please type in the file path from this directory")
-        file = open(file_path, "r")
+        file_path = input("Please type in the file path from this directory: ")
+        with open(file_path, "r") as file:
+            file_info = file.read().split("\\n")
 
         # sets variables based on current line
-        for idx, line in file:
+        for idx, line in enumerate(file_info):
             if idx == 0:
-                S = line
+                S = line.split(",")
             elif idx == 1:
-                n = line
+                n = int(line)
             elif idx == 2:
-                V = line
+                V = line.split(",")
             elif idx == 3:
-                F = line
+                F = line.split(",")
             elif idx == 4:
-                sigma = line
+                sigma = line.split(",")
             elif idx == 5:
-                G = line
+                G = line.split(",")
 
         file.close()
-    
-    # Removes whitespace from inputs
-    S = S.strip()
-    n = n.strip()
-    V = V.strip()
-    F = F.strip()
-    sigma = sigma.strip()
-    G = G.strip()
-
-    variables = [S, n, V, F, sigma, G]
-
-    # formats the inputs before putting into dictionary
-    for i in variables:
-        print(i)
-        if int(i) == i: # checks for integers (needed to convert n to int)
-            i = int(i)
-        else:
-            i = i.split(",") # creates array that splits based on commas
-    
+        
     print(S)
     print(n)
     print(V)
@@ -144,27 +141,7 @@ def main():
         if column_name not in S:
             df.drop(column_name, axis=1)
 
-    _global = df
-
-    """
-    for scan sc=0 to n {
-        for each tuple t on scan {
-           for all entries of H,
-                check if the defining condition of grouping var
-                Xsc is satisfied. If yes, update Xsc’s aggregates of the entry
-                appropriately.
-                X0 denotes the group (the defining condition of X0 is X0.S = S,
-                where S denotes the grouping attributes.)
-        }
-    }
-
-    for row in cur:
-        #scan table
-    """
-
-    body = """
-    
-    """
+    _global = df"""
 
     # Note: The f allows formatting with variables.
     #       Also, note the indentation is preserved.
@@ -173,6 +150,8 @@ import os
 import psycopg2
 import psycopg2.extras
 import tabulate
+import pandas as pd # added package
+import enum # added package
 from dotenv import load_dotenv
 
 # DO NOT EDIT THIS FILE, IT IS GENERATED BY generator.py
