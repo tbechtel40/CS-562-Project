@@ -25,7 +25,7 @@ def main():
 
     body = """
     # Asks user if they'd like to manually input Phi variables or read variables from a file
-    file_check = input("Press 1 to read from a file, press 2 to input the arguments")
+    file_check = input("Press 1 to read from a file, press 2 to input the arguments: ")
 
     if(int(file_check) == 2): # manual input
         S = input("Input Select Attribute (S): ") # cust, 1_sum_quant, 2_sum_quant, 3_sum_quant
@@ -37,22 +37,32 @@ def main():
     else: # read from file
         file_path = input("Please type in the file path from this directory: ")
         with open(file_path, "r") as file:
-            file_info = file.read().split("\\n")
+            file_info = file.read().split("\n")
 
         # sets variables based on current line
         for idx, line in enumerate(file_info):
             if idx == 0:
                 S = line.split(",")
+                for i, l in enumerate(S):
+                    S[i] = l.strip()
             elif idx == 1:
                 n = int(line)
             elif idx == 2:
                 V = line.split(",")
+                for i, l in enumerate(V):
+                    V[i] = l.strip()
             elif idx == 3:
                 F = line.split(",")
+                for i, l in enumerate(F):
+                    F[i] = l.strip()
             elif idx == 4:
                 sigma = line.split(",")
+                for i, l in enumerate(sigma):
+                    sigma[i] = l.strip()
             elif idx == 5:
                 G = line.split(",")
+                for i, l in enumerate(G):
+                    G[i] = l.strip()
 
         file.close()
         
