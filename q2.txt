@@ -1,0 +1,6 @@
+prod, 1_avg_quant, 2_avg_quant
+2
+prod
+1_avg_quant, 2_avg_quant
+1.prod=Apple, 2.prod=Grapes, 1.year=2019, 2.year=2019
+N/A

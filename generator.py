@@ -7,22 +7,6 @@ def main():
     file (e.g. _generated.py) and then run.
     """
 
-    """
-    for scan sc=0 to n {
-        for each tuple t on scan {
-           for all entries of H,
-                check if the defining condition of grouping var
-                Xsc is satisfied. If yes, update Xsc’s aggregates of the entry
-                appropriately.
-                X0 denotes the group (the defining condition of X0 is X0.S = S,
-                where S denotes the grouping attributes.)
-        }
-    }
-
-    for row in cur:
-        #scan table
-    """
-
     body = """
     # Asks user if they'd like to manually input Phi variables or read variables from a file
     file_check = input("Press 1 to read from a file, press 2 to input the arguments: ")
@@ -65,13 +49,6 @@ def main():
                     G[i] = l.strip()
 
         file.close()
-        
-    print(S)
-    print(n)
-    print(V)
-    print(F)
-    print(sigma)
-    print(G)
     
     # Phi operator dictionary
     Phi = {
@@ -88,16 +65,22 @@ def main():
 
     df = pd.DataFrame(data=cur, columns=schema) # creates dataframe
 
-    # Algorithm
-
     emf = df[Phi["V"]].drop_duplicates() # gets rid of duplicate rows
 
     # converting dataframe to dictionary
-    emf = [{V: row[i] for i, V in enum(Phi["V"])} for row in emf.values]
+    emf = [{V: row[i] for i, V in enumerate(Phi["V"])} for row in emf.values]
 
-    # normal aggregates
-    # iterate through f: if aggregate not group by aggregate, store in normal aggregate dictionary and compute
-    # 0_avg_prod --> 0 = group by it belongs to (0 = normal), avg = aggregate, prod = column
+    # Dictionary for aggregates
+
+    aggDict = {}
+    for i in range(n):
+        aggDict[i+1] = {}
+
+    for aggregate in Phi["F"]:
+        gb_num = int(aggregate[0]) # gets the group by number
+        agg = aggregate.split("_")[1] # gets the aggregate function
+        col = aggregate.split("_")[2] # gets the affected column (i.e. quant)
+        aggDict[gb_num].update({agg: col})
 
     # emf algorithm
     # for sigma 
@@ -108,48 +91,86 @@ def main():
 
     # main algorithm for EMF queries
     for predicate in Phi["sigma"]: # for each grouping variable predicate
+        gb_num = int(predicate[0])
         for row in df.iterrows(): # for each tuple/row in the table
             for gb_var in emf: # for each group by variable
-                if eval(predicate): # checks if the condition is true for the row
+                col = predicate.split(".")[1].split(" ")[0]
+                operator = predicate.split(".")[1].split(" ")[1]
+                value = predicate.split(".")[1].split(" ")[2]
+                cond1 = row[1][col]
+                if operator == "=":
+                    operator = "=="
+                if eval(f'cond1 {operator} value'): # checks if the condition is true for the row
                     # ex: predicate = 1.state="NY"
-                    aggregate = predicate.split(".")[1]
-                    col = aggregate.split("=")[0] # gets the affected column (state)
-                    condition = predicate.split("=")[1] # gets whatever is after "="
-                    index = schema.index(col) # gets the index for the value in the row
-                    if (aggregate == "sum" | aggregate == "avg"):
-                        gb_var += row[index]
-                    if (aggregate == "min" | aggregate == "max"):
-                        gb_var = row[index]
-                    if (aggregate == "count"):
-                        gb_var += 1
-
-    # need to divide by length for average
-
-    # Having
-        # identical to algorithm BUT its only on the Phi
-        # same if eval, all that
-
-    for predicate in Phi["G"]:
-        for row in df.iterrows():
-           if eval(predicate): # checks if the condition is true for the row
-                # ex: predicate = 1.state="NY"
-                aggregate = predicate.split(".")[1]
-                col = aggregate.split("=")[0] # gets the affected column (state)
-                condition = predicate.split("=")[1] # gets whatever is after "="
-                index = schema.index(col) # gets the index for the value in the row
-                if (aggregate == "sum" | aggregate == "avg"):
-                    gb_var += row[index]
-                if (aggregate == "min" | aggregate == "max"):
-                    gb_var = row[index]
-                if (aggregate == "count"):
-                    gb_var += 1
+                    updateAggregates = aggDict[gb_num]
+                    for aggregate in updateAggregates:
+                        ind = f"{gb_num}_{aggregate}_{aggDict[gb_num][aggregate]}"
+                        for gb_att in V:
+                            if emf[emf.index(gb_var)][gb_att] == row[1][gb_att]:
+                                if (aggregate == "sum" or aggregate == "avg"):
+                                    try:
+                                        avg_count = f"{ind}_count"
+                                        emf[emf.index(gb_var)][ind] += row[1][aggDict[gb_num][aggregate]]
+                                        emf[emf.index(gb_var)][avg_count] += 1
+                                    except:
+                                        emf[emf.index(gb_var)][ind] = row[1][aggDict[gb_num][aggregate]]
+                                        emf[emf.index(gb_var)][avg_count] = 1
+                                if (aggregate == "min" or aggregate == "max"):
+                                    try:
+                                        if (aggregate == "min" and emf[emf.index(gb_var)][ind] > row[1][aggDict[gb_num][aggregate]]):
+                                            emf[emf.index(gb_var)][ind] = row[1][aggDict[gb_num][aggregate]]
+                                        elif (aggregate == "max" and emf[emf.index(gb_var)][ind] < row[1][aggDict[gb_num][aggregate]]):
+                                            emf[emf.index(gb_var)][ind] = row[1][aggDict[gb_num][aggregate]]
+                                    except:
+                                        emf[emf.index(gb_var)][ind] = row[1][aggDict[gb_num][aggregate]]
+                                if (aggregate == "count"):
+                                    try:
+                                        emf[emf.index(gb_var)][ind] += 1
+                                    except:
+                                        emf[emf.index(gb_var)][ind] = 1
+        for gb_var in emf:
+            aggregate = "avg"
+            try:
+                ind = f"{gb_num}_{aggregate}_{aggDict[gb_num][aggregate]}"
+                emf[emf.index(gb_var)][ind] = emf[emf.index(gb_var)][ind] / emf[emf.index(gb_var)][avg_count]
+            except:
+                pass
 
     # Select
         # go through rows of table, make sure it's in select table
 
-    for column_name in df.columns[0]:
+    for column_name in df.columns:
         if column_name not in S:
-            df.drop(column_name, axis=1)
+            df = df.drop(column_name, axis=1)
+            df = df.drop_duplicates()
+
+    for col in S:
+        if col not in df.columns:
+            data = []
+            for item in emf:
+                data.append(item.get(col))
+            df[col] = data
+
+    # Having
+
+    for predicate in Phi["G"]:
+        for gb_var in emf:
+            eval_string = ""
+            pred_values = predicate.split(" ")
+            for item in pred_values:
+                if item == "=":
+                    eval_string += "== "
+                elif "_" in item:
+                    eval_string += str(gb_var[item]) + " "
+                else:
+                    eval_string += str(item) + " "
+            if not eval(eval_string):
+                attribute_list = []
+                for gb_att in V:
+                    attribute_list.append(gb_var[gb_att])
+                de_delete = pd.DataFrame(tuple(attribute_list), columns=V)
+                df_filter = df.merge(de_delete, on=V, how="left", indicator=True)
+                df = df_filter[df_filter["_merge"] == "left_only"].drop(columns=["_merge"])
 
     _global = df"""
 
